@@ -1,5 +1,5 @@
 /**
- * JAYASHBORN LANDING PAGE INTERACTIONS (V1)
+ * JAYASHBORN LANDING PAGE INTERACTIONS (V2 - CONSERVATIVE)
  * Developer: Antigravity AI
  * Creator: Coach J / เจตื่นแล้ว
  */
@@ -8,34 +8,94 @@ document.addEventListener("DOMContentLoaded", () => {
     // =========================================================================
     // 1. LEAD CAPTURE & CTA CENTRAL CONFIGURATION
     // =========================================================================
-    // CLIENT REVIEW: Change this URL to your Notion, PDF, Google Form, or Instagram DM link.
-    // Example Options:
-    // - Notion: "https://notion.so/jayashborn/ebook-pull-up-fundamentals"
-    // - Instagram DM: "https://ig.me/m/jayashborn"
-    // - Google Form: "https://forms.gle/your-form-id"
-    // - PDF Direct: "assets/pull-up-zero-to-hero.pdf"
     const CONFIG = {
-        ctaLink: "https://harmless-range-d77.notion.site/From-Zero-to-Hero-b7c2fe65e45b4dc9b756ba11da06ae3b?source=copy_link"
+        freeEbook: "https://harmless-range-d77.notion.site/From-Zero-to-Hero-b7c2fe65e45b4dc9b756ba11da06ae3b?source=copy_link",
+        paymentLink: "https://buy.stripe.com/8x200jdSccIWdtd8SDdby00", // Stripe checkout — Full Action Plan 299.-
+        oneOnOneLink: "https://line.me/ti/p/BoRihbqWbj" // 1:1 Coaching contact (LINE)
     };
 
-    const ctaButtons = document.querySelectorAll(".cta-button-trigger");
-    ctaButtons.forEach(button => {
+    // Route Free E-book CTA Triggers
+    const freeCtaButtons = document.querySelectorAll('[href="FREE_EBOOK_LINK"], .cta-free-trigger');
+    freeCtaButtons.forEach(button => {
         button.addEventListener("click", (e) => {
-            // If the link starts with # and is an internal anchor, let default behavior handle scroll
-            const targetHref = button.getAttribute("href");
-            if (targetHref && targetHref.startsWith("#") && targetHref !== "#") {
-                return;
-            }
-            
-            // Otherwise, route to central config link
             e.preventDefault();
-            console.log(`Routing user to CTA: ${CONFIG.ctaLink}`);
-            window.open(CONFIG.ctaLink, "_blank", "noopener,noreferrer");
+            console.log(`Routing user to Free E-book: ${CONFIG.freeEbook}`);
+            window.open(CONFIG.freeEbook, "_blank", "noopener,noreferrer");
+        });
+    });
+
+    // Route Paid Action Plan CTA Triggers
+    const paidCtaButtons = document.querySelectorAll('[href="PAYMENT_LINK"], .cta-paid-trigger');
+    paidCtaButtons.forEach(button => {
+        button.addEventListener("click", (e) => {
+            e.preventDefault();
+            console.log(`Routing user to Checkout Page: ${CONFIG.paymentLink}`);
+            window.open(CONFIG.paymentLink, "_blank", "noopener,noreferrer");
+        });
+    });
+
+    // Route 1:1 Coaching CTA Triggers
+    const coachingCtaButtons = document.querySelectorAll('[href="ONE_ON_ONE_LINK"], .cta-coaching-trigger');
+    coachingCtaButtons.forEach(button => {
+        button.addEventListener("click", (e) => {
+            e.preventDefault();
+            console.log(`Routing user to 1:1 Coaching contact: ${CONFIG.oneOnOneLink}`);
+            window.open(CONFIG.oneOnOneLink, "_blank", "noopener,noreferrer");
+        });
+    });
+
+    // Route Smooth Scroll Triggers
+    const scrollCtaButtons = document.querySelectorAll('[href^="#"], .cta-action-plan-scroll-trigger');
+    scrollCtaButtons.forEach(button => {
+        button.addEventListener("click", (e) => {
+            const targetId = button.getAttribute("href");
+            if (targetId && targetId.startsWith("#") && targetId !== "#") {
+                e.preventDefault();
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    console.log(`Scrolling smoothly to ${targetId}`);
+                    targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+                    
+                    // Close mobile dropdown if open
+                    const mobileDropdown = document.querySelector(".mobile-dropdown-nav");
+                    const mobileToggle = document.querySelector(".mobile-menu-toggle");
+                    if (mobileDropdown && mobileDropdown.classList.contains("open")) {
+                        mobileDropdown.classList.remove("open");
+                        mobileToggle.classList.remove("active");
+                    }
+                }
+            }
         });
     });
 
     // =========================================================================
-    // 2. ACCORDION TOGGLE INTERACTION (Table of Contents & FAQ)
+    // 2. MOBILE NAVIGATION DROPDOWN MENU
+    // =========================================================================
+    const mobileMenuToggle = document.querySelector(".mobile-menu-toggle");
+    const mobileDropdownNav = document.querySelector(".mobile-dropdown-nav");
+
+    if (mobileMenuToggle && mobileDropdownNav) {
+        mobileMenuToggle.addEventListener("click", () => {
+            const isOpen = mobileDropdownNav.classList.contains("open");
+            mobileDropdownNav.classList.toggle("open", !isOpen);
+            mobileMenuToggle.classList.toggle("active", !isOpen);
+            
+            // Adjust Hamburger lines visual
+            const bars = mobileMenuToggle.querySelectorAll(".bar");
+            if (!isOpen) {
+                bars[0].style.transform = "rotate(45deg) translate(5px, 5px)";
+                bars[1].style.opacity = "0";
+                bars[2].style.transform = "rotate(-45deg) translate(6px, -6px)";
+            } else {
+                bars[0].style.transform = "none";
+                bars[1].style.opacity = "1";
+                bars[2].style.transform = "none";
+            }
+        });
+    }
+
+    // =========================================================================
+    // 3. ACCORDION TOGGLE INTERACTION (FAQ Accordion)
     // =========================================================================
     const accordions = document.querySelectorAll(".accordion-header");
 
@@ -55,8 +115,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 content.style.maxHeight = "0px";
             }
 
-            // Optional: Close other accordions in the SAME parent container
-            const parent = header.closest(".preview-accordion") || header.closest(".faq-accordion");
+            // Close other accordions in the same FAQ parent container
+            const parent = header.closest(".faq-accordion");
             if (parent) {
                 const siblingItems = parent.querySelectorAll(".accordion-item");
                 siblingItems.forEach(item => {
@@ -73,24 +133,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // =========================================================================
-    // 3. HEADER SCROLL EFFECT & STICKY BOTTOM CTA
+    // 4. HEADER SCROLL EFFECT & STICKY BOTTOM MOBILE CTA
     // =========================================================================
     const header = document.querySelector(".main-header");
     const heroSection = document.getElementById("hero");
     const stickyMobileCta = document.querySelector(".sticky-mobile-cta");
     
-    // Check scroll position
     const handleScrollEffects = () => {
         const scrollY = window.scrollY;
         
-        // 3a. Header background solid styling on scroll
+        // 4a. Header background solid styling on scroll
         if (scrollY > 50) {
             header.classList.add("scrolled");
         } else {
             header.classList.remove("scrolled");
         }
 
-        // 3b. Sticky bottom CTA bar toggle (scrolled past hero)
+        // 4b. Sticky bottom CTA bar toggle (scrolled past hero)
         if (heroSection && stickyMobileCta) {
             const heroHeight = heroSection.offsetHeight;
             if (scrollY > heroHeight - 100) {
@@ -105,9 +164,8 @@ document.addEventListener("DOMContentLoaded", () => {
     handleScrollEffects(); // Trigger once on load to set initial state
 
     // =========================================================================
-    // 4. PROGRESSIVE ENHANCEMENT: SCROLL REVEAL FALLBACK
+    // 5. PROGRESSIVE ENHANCEMENT: SCROLL REVEAL FALLBACK
     // =========================================================================
-    // If browser DOES NOT support native scroll timelines, we fall back to IntersectionObserver
     const supportsScrollTimeline = CSS.supports("(animation-timeline: view()) and (animation-range: entry)");
 
     if (!supportsScrollTimeline) {
@@ -119,7 +177,6 @@ document.addEventListener("DOMContentLoaded", () => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add("visible");
-                    // Once animated, we don't need to observe it anymore
                     observer.unobserve(entry.target);
                 }
             });
@@ -135,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================================================================
-    // 5. MOUSE SPOTLIGHT EFFECT FOR CARDS (Glassmorphism highlight)
+    // 6. MOUSE SPOTLIGHT EFFECT FOR CARDS (Glassmorphism highlight)
     // =========================================================================
     const cards = document.querySelectorAll(".card");
     cards.forEach(card => {
